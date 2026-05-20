@@ -177,7 +177,7 @@ export default function LeadsClient() {
                     {g.map((lead) => (
                       <button
                         key={lead.id}
-                        onClick={() => { setSelected(lead); setNotes(lead.notes ?? ""); setTenderUrlInput(""); }}
+                        onClick={() => { setSelected(lead); setNotes(lead.notes ?? ""); setTenderUrlInput(lead.tenderUrl ? "" : (lead.sourceUrl ?? "")); }}
                         className={`w-full text-left rounded-xl border px-5 py-4 transition-all ${
                           selected?.id === lead.id
                             ? "border-gray-400 bg-white shadow-md"
@@ -308,7 +308,7 @@ export default function LeadsClient() {
                     </button>
                   ) : (
                     <div className="space-y-1.5">
-                      <p className="text-xs text-gray-400">Paste the individual tender page URL to fetch contact details:</p>
+                      <p className="text-xs text-gray-400">Enter the tender page URL to fetch contact details:</p>
                       <div className="flex gap-2">
                         <input
                           type="url"
