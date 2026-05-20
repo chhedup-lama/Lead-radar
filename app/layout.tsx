@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
+const openSans = Open_Sans({ variable: "--font-open-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Opportunity Radar",
@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} h-full`}>
-      <body className="min-h-full bg-gray-50 text-gray-900 font-[family-name:var(--font-geist)]">
+    <html lang="en" className={`${openSans.variable} h-full`}>
+      <body className="min-h-full bg-gray-50 text-gray-900 font-[family-name:var(--font-open-sans)]">
         <div className="flex h-full min-h-screen">
           <aside className="w-56 shrink-0 bg-white border-r border-gray-200 flex flex-col">
             <div className="px-6 py-5 border-b border-gray-200">
