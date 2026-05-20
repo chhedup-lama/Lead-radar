@@ -118,29 +118,29 @@ export default function LeadsClient() {
     <div className="flex h-full">
       {/* Left panel */}
       <div className="flex-1 flex flex-col min-w-0 overflow-auto">
-        <div className="px-8 py-6 border-b border-gray-200 bg-white sticky top-0 z-10">
-          <div className="flex items-center justify-between">
+        <div className="px-4 py-4 md:px-8 md:py-6 border-b border-gray-200 bg-white sticky top-0 z-10">
+          <div className="flex items-start justify-between gap-3">
             <div>
               <h1 className="text-xl font-semibold text-gray-900">Leads</h1>
               <p className="text-sm text-gray-500 mt-0.5">
                 {leads.length} leads found · {tier1.length} Tier 1
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <select
                 value={filterTier}
                 onChange={(e) => setFilterTier(e.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className="rounded-md border border-gray-300 px-2 py-1.5 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
               >
                 <option value="">All tiers</option>
-                <option value="1">Tier 1 — Act Now</option>
-                <option value="2">Tier 2 — Monitor</option>
-                <option value="3">Tier 3 — Low Priority</option>
+                <option value="1">Tier 1</option>
+                <option value="2">Tier 2</option>
+                <option value="3">Tier 3</option>
               </select>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className="rounded-md border border-gray-300 px-2 py-1.5 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
               >
                 <option value="">All statuses</option>
                 <option value="new">New</option>
@@ -155,16 +155,16 @@ export default function LeadsClient() {
         </div>
 
         {loading ? (
-          <div className="flex items-center gap-2 text-sm text-gray-500 px-8 py-12">
+          <div className="flex items-center gap-2 text-sm text-gray-500 px-4 md:px-8 py-12">
             <Spinner /> Loading leads…
           </div>
         ) : leads.length === 0 ? (
-          <div className="px-8 py-16 text-center">
+          <div className="px-4 md:px-8 py-16 text-center">
             <p className="text-gray-400 text-sm">No leads yet.</p>
             <p className="text-gray-400 text-sm mt-1">Go to Sources and click <strong>Scan All Live</strong>.</p>
           </div>
         ) : (
-          <div className="px-8 py-6 space-y-8">
+          <div className="px-4 md:px-8 py-6 space-y-8">
             {(([["1", tier1], ["2", tier2], ["3", tier3]] as [string, Lead[]][])).map(([tier, g]) => {
               if (g.length === 0) return null;
               const cfg = TIER_CONFIG[tier as string];
@@ -222,15 +222,15 @@ export default function LeadsClient() {
         )}
       </div>
 
-      {/* Right detail panel */}
+      {/* Right detail panel — full-screen overlay on mobile, side panel on md+ */}
       {selected && (
-        <div className="w-96 shrink-0 border-l border-gray-200 bg-white overflow-auto flex flex-col">
-          <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+        <div className="fixed inset-0 z-30 bg-white overflow-auto flex flex-col md:static md:inset-auto md:z-auto md:w-96 md:shrink-0 md:border-l md:border-gray-200">
+          <div className="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-gray-800">Lead Detail</h2>
             <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
           </div>
 
-          <div className="px-6 py-5 flex-1 space-y-5 text-sm">
+          <div className="px-4 md:px-6 py-5 flex-1 space-y-5 text-sm">
             <div>
               <p className="font-semibold text-gray-900 leading-snug">{selected.title}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">

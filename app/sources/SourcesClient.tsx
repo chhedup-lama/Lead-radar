@@ -138,16 +138,16 @@ export default function SourcesClient() {
   const liveSources = sources.filter((s) => s.status === "live");
 
   return (
-    <div className="px-8 py-8 max-w-5xl">
+    <div className="px-4 py-6 md:px-8 md:py-8 max-w-5xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Sources</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Add a URL and test it. Only <span className="font-medium text-green-700">Live</span> sources are scanned.
           </p>
         </div>
-        <div className="flex flex-col items-end gap-1">
+        <div className="flex flex-col items-start sm:items-end gap-1">
           <button
             onClick={handleScanAll}
             disabled={scanningAll || liveSources.length === 0}
@@ -242,8 +242,8 @@ export default function SourcesClient() {
           No sources yet. Add your first one above.
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[600px]">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50">
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Name</th>
