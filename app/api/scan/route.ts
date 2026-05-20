@@ -33,10 +33,16 @@ export async function POST() {
 
       const html = await res.text();
 
-      // Strip scripts/styles for cleaner extraction
+      // Strip scripts/styles; preserve anchor text+href so Claude can extract individual tender URLs
+      const baseUrl = new URL(source.url).origin;
       const pageText = html
         .replace(/<script[\s\S]*?<\/script>/gi, "")
         .replace(/<style[\s\S]*?<\/style>/gi, "")
+        .replace(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_, href, text) => {
+          const cleanText = text.replace(/<[^>]+>/g, "").trim();
+          const fullHref = href.startsWith("http") ? href : `${baseUrl}${href.startsWith("/") ? "" : "/"}${href}`;
+          return cleanText ? ` ${cleanText} [${fullHref}] ` : ` ${fullHref} `;
+        })
         .replace(/<[^>]+>/g, " ")
         .replace(/\s+/g, " ")
         .trim();
@@ -66,6 +72,7 @@ export async function POST() {
             procurementStage: l.procurementStage || null,
             deadline: l.deadline || null,
             funder: l.funder || null,
+            tenderUrl: l.tenderUrl || null,
             contacts: l.contacts || null,
             summary: l.summary || null,
             whyRelevant: l.whyRelevant || null,

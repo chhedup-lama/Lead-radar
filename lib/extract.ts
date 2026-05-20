@@ -13,6 +13,7 @@ export interface ExtractedLead {
   procurementStage: string;
   deadline: string;
   funder: string;
+  tenderUrl: string;
   contacts: string;
   summary: string;
   whyRelevant: string;
@@ -76,7 +77,8 @@ For each opportunity found, return a JSON object with these fields:
 - procurementStage: Open | Upcoming | Pipeline | Award
 - deadline: closing date if visible, or empty string
 - funder: funding organization if different from institution
-- contacts: any named contacts or email addresses found
+- tenderUrl: the full URL link to the individual tender detail page, found as a hyperlink next to or around the tender title (e.g. "https://procurement-notices.undp.org/view_notice.cfm?notice_id=12345"). Use the absolute URL shown in brackets [URL] after the tender title. Use empty string if not found.
+- contacts: any procurement officer name, email address, phone number, or contact unit found anywhere on the page for this opportunity. Include the person's name and role if available (e.g. "Jane Doe, Procurement Officer — jane.doe@undp.org"). If nothing is found, use empty string.
 - summary: 2-3 sentence plain English summary of what is being procured
 - whyRelevant: 1-2 sentences on specifically why MJCA should look at this
 - recommendedAction: one of "Pursue now" | "Monitor" | "Research partner route" | "Archive"
@@ -120,4 +122,27 @@ ${content}`,
     console.error("[extract] Failed to parse Claude response (stop_reason=" + stopReason + "):", cleaned.slice(0, 300));
     return [];
   }
+}
+
+export async function extractContacts(pageContent: string, pageUrl: string): Promise<string> {
+  const content = pageContent.slice(0, 40000);
+  const message = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 512,
+    system: `You extract contact details from procurement tender pages. Be concise and factual. Plain text only.`,
+    messages: [
+      {
+        role: "user",
+        content: `Extract all contact information from this tender page. Include: names, job titles, email addresses, phone numbers, and submission instructions. Format as plain readable text.
+
+If no contact details are found, reply with exactly: "No contact details found on this page."
+
+PAGE URL: ${pageUrl}
+
+PAGE CONTENT:
+${content}`,
+      },
+    ],
+  });
+  return message.content[0].type === "text" ? message.content[0].text.trim() : "No contact details found on this page.";
 }

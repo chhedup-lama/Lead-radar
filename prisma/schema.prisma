@@ -36,6 +36,7 @@ model Lead {
   procurementStage  String?
   deadline          String?
   funder            String?
+  tenderUrl         String?
   contacts          String?
   summary           String?
   whyRelevant       String?

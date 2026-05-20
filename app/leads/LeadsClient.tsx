@@ -14,6 +14,8 @@ interface Lead {
   procurementStage: string | null;
   deadline: string | null;
   funder: string | null;
+  tenderUrl: string | null;
+  contacts: string | null;
   summary: string | null;
   whyRelevant: string | null;
   recommendedAction: string | null;
@@ -62,6 +64,8 @@ export default function LeadsClient() {
   const [filterStatus, setFilterStatus] = useState("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const [fetchingContacts, setFetchingContacts] = useState(false);
+  const [tenderUrlInput, setTenderUrlInput] = useState("");
 
   const fetchLeads = useCallback(async () => {
     const params = new URLSearchParams();
@@ -74,6 +78,22 @@ export default function LeadsClient() {
   }, [filterTier, filterStatus]);
 
   useEffect(() => { setLoading(true); fetchLeads(); }, [fetchLeads]);
+
+  async function fetchContacts(id: string, overrideUrl?: string) {
+    setFetchingContacts(true);
+    const res = await fetch(`/api/leads/${id}/contacts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(overrideUrl ? { tenderUrl: overrideUrl } : {}),
+    });
+    if (res.ok) {
+      const updated: Lead = await res.json();
+      setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, ...updated } : l)));
+      if (selected?.id === id) setSelected((s) => s ? { ...s, ...updated } : null);
+      setTenderUrlInput("");
+    }
+    setFetchingContacts(false);
+  }
 
   async function updateStatus(id: string, reviewStatus: string, notesVal?: string) {
     setUpdatingId(id);
@@ -157,7 +177,7 @@ export default function LeadsClient() {
                     {g.map((lead) => (
                       <button
                         key={lead.id}
-                        onClick={() => { setSelected(lead); setNotes(lead.notes ?? ""); }}
+                        onClick={() => { setSelected(lead); setNotes(lead.notes ?? ""); setTenderUrlInput(""); }}
                         className={`w-full text-left rounded-xl border px-5 py-4 transition-all ${
                           selected?.id === lead.id
                             ? "border-gray-400 bg-white shadow-md"
@@ -235,8 +255,8 @@ export default function LeadsClient() {
                 ["Discovered", formatDate(selected.discoveredAt)],
               ].filter(([, v]) => v).map(([label, value]) => (
                 <div key={label as string} className="flex gap-2">
-                  <dt className="w-28 shrink-0 text-gray-400 font-medium">{label}</dt>
-                  <dd className="text-gray-700">{value}</dd>
+                  <dt className="w-1/2 shrink-0 text-gray-400 font-medium">{label}</dt>
+                  <dd className="w-1/2 text-gray-700">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -261,6 +281,68 @@ export default function LeadsClient() {
                 <p className="text-xs text-gray-700">{selected.recommendedAction}</p>
               </div>
             )}
+
+            <div className={`rounded-lg px-4 py-3 border ${selected.contacts ? "bg-blue-50 border-blue-100" : "bg-gray-50 border-gray-200"}`}>
+              <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-blue-700">Contact</p>
+
+              {selected.contacts ? (
+                <div className="space-y-2">
+                  <ContactLinks text={selected.contacts} />
+                  <button
+                    onClick={() => fetchContacts(selected.id, selected.tenderUrl || tenderUrlInput || undefined)}
+                    disabled={fetchingContacts}
+                    className="text-xs text-blue-500 hover:text-blue-700 disabled:opacity-40 inline-flex items-center gap-1"
+                  >
+                    {fetchingContacts ? <><Spinner /> Refreshing…</> : "Refresh contacts"}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {selected.tenderUrl ? (
+                    <button
+                      onClick={() => fetchContacts(selected.id)}
+                      disabled={fetchingContacts}
+                      className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-40"
+                    >
+                      {fetchingContacts ? <><Spinner /> Fetching…</> : "Get Contact"}
+                    </button>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <p className="text-xs text-gray-400">Paste the individual tender page URL to fetch contact details:</p>
+                      <div className="flex gap-2">
+                        <input
+                          type="url"
+                          value={tenderUrlInput}
+                          onChange={(e) => setTenderUrlInput(e.target.value)}
+                          placeholder="https://..."
+                          className="flex-1 rounded-md border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
+                        />
+                        <button
+                          onClick={() => fetchContacts(selected.id, tenderUrlInput)}
+                          disabled={fetchingContacts || !tenderUrlInput}
+                          className="rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-40"
+                        >
+                          {fetchingContacts ? <Spinner /> : "Fetch"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {selected.tenderUrl && (
+                <a href={selected.tenderUrl} target="_blank" rel="noopener noreferrer"
+                  className="inline-block mt-2 text-xs text-blue-500 hover:text-blue-700 underline">
+                  Open tender page →
+                </a>
+              )}
+              {!selected.tenderUrl && (
+                <a href={selected.sourceUrl} target="_blank" rel="noopener noreferrer"
+                  className="inline-block mt-2 text-xs text-gray-400 hover:text-gray-600 underline">
+                  Open source page →
+                </a>
+              )}
+            </div>
 
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Notes</p>
@@ -302,18 +384,25 @@ export default function LeadsClient() {
               </div>
             </div>
 
-            <a
-              href={selected.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-xs text-blue-500 hover:text-blue-700 underline"
-            >
-              View original source →
-            </a>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+function ContactLinks({ text }: { text: string }) {
+  const parts = text.split(/(\S+@\S+\.\S+)/g);
+  return (
+    <p className="text-xs text-gray-700 leading-relaxed break-words">
+      {parts.map((part, i) =>
+        /\S+@\S+\.\S+/.test(part) ? (
+          <a key={i} href={`mailto:${part}`} className="text-blue-600 hover:underline font-medium">{part}</a>
+        ) : (
+          part
+        )
+      )}
+    </p>
   );
 }
 
