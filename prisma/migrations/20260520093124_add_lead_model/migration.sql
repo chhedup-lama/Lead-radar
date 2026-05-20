@@ -1,0 +1,26 @@
+-- CreateTable
+CREATE TABLE "Lead" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "sourceId" TEXT NOT NULL,
+    "sourceUrl" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "institution" TEXT,
+    "country" TEXT,
+    "sector" TEXT,
+    "subSector" TEXT,
+    "serviceLine" TEXT,
+    "opportunityType" TEXT,
+    "procurementStage" TEXT,
+    "deadline" TEXT,
+    "funder" TEXT,
+    "contacts" TEXT,
+    "summary" TEXT,
+    "whyRelevant" TEXT,
+    "recommendedAction" TEXT,
+    "score" INTEGER NOT NULL DEFAULT 0,
+    "scoreTier" TEXT NOT NULL DEFAULT '3',
+    "reviewStatus" TEXT NOT NULL DEFAULT 'new',
+    "notes" TEXT,
+    "discoveredAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Lead_sourceId_fkey" FOREIGN KEY ("sourceId") REFERENCES "Source" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);

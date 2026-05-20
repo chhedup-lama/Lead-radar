@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 type SourceStatus = "live" | "js_rendered" | "auth_required" | "dead" | "blocked" | "untested";
 
@@ -44,9 +45,11 @@ function formatDate(iso: string | null) {
 }
 
 export default function SourcesClient() {
+  const router = useRouter();
   const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(true);
   const [scanningAll, setScanningAll] = useState(false);
+  const [scanStatus, setScanStatus] = useState("");
 
   // Add form state
   const [name, setName] = useState("");
@@ -119,12 +122,17 @@ export default function SourcesClient() {
 
   async function handleScanAll() {
     setScanningAll(true);
-    // Re-probe all live sources sequentially (stub — will trigger lead extraction later)
-    const liveSources = sources.filter((s) => s.status === "live");
-    for (const s of liveSources) {
-      await handleProbe(s.id);
+    setScanStatus("Scanning live sources — this may take a minute…");
+    try {
+      const res = await fetch("/api/scan", { method: "POST" });
+      const data = await res.json();
+      setScanStatus(data.message ?? "Scan complete.");
+      router.push("/leads");
+    } catch {
+      setScanStatus("Scan failed. Please try again.");
+    } finally {
+      setScanningAll(false);
     }
-    setScanningAll(false);
   }
 
   const liveSources = sources.filter((s) => s.status === "live");
@@ -139,20 +147,25 @@ export default function SourcesClient() {
             Add a URL and test it. Only <span className="font-medium text-green-700">Live</span> sources are scanned.
           </p>
         </div>
-        <button
-          onClick={handleScanAll}
-          disabled={scanningAll || liveSources.length === 0}
-          className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {scanningAll ? (
-            <>
-              <Spinner />
-              Scanning…
-            </>
-          ) : (
-            `Scan All Live (${liveSources.length})`
+        <div className="flex flex-col items-end gap-1">
+          <button
+            onClick={handleScanAll}
+            disabled={scanningAll || liveSources.length === 0}
+            className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {scanningAll ? (
+              <>
+                <Spinner />
+                Scanning…
+              </>
+            ) : (
+              `Scan All Live (${liveSources.length})`
+            )}
+          </button>
+          {scanStatus && (
+            <span className="text-xs text-gray-500">{scanStatus}</span>
           )}
-        </button>
+        </div>
       </div>
 
       {/* Add source form */}

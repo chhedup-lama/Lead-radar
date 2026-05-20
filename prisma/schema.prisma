@@ -18,4 +18,31 @@ model Source {
   lastTested  DateTime?
   lastScanned DateTime?
   createdAt   DateTime @default(now())
+  leads       Lead[]
+}
+
+model Lead {
+  id                String   @id @default(cuid())
+  sourceId          String
+  source            Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  sourceUrl         String
+  title             String
+  institution       String?
+  country           String?
+  sector            String?
+  subSector         String?
+  serviceLine       String?
+  opportunityType   String?
+  procurementStage  String?
+  deadline          String?
+  funder            String?
+  contacts          String?
+  summary           String?
+  whyRelevant       String?
+  recommendedAction String?
+  score             Int      @default(0)
+  scoreTier         String   @default("3")
+  reviewStatus      String   @default("new")
+  notes             String?
+  discoveredAt      DateTime @default(now())
 }
