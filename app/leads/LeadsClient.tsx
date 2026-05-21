@@ -122,9 +122,9 @@ export default function LeadsClient() {
   const tier3 = leads.filter((l) => l.scoreTier === "3");
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-[calc(100vh-4rem)] md:h-screen overflow-hidden">
       {/* Left panel */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-auto">
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <div className="px-4 py-4 md:px-8 md:py-6 border-b border-gray-200 bg-white sticky top-0 z-10">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -231,7 +231,7 @@ export default function LeadsClient() {
 
       {/* Right detail panel — full-screen overlay on mobile, side panel on md+ */}
       {selected && (
-        <div ref={detailRef} className="fixed inset-0 z-30 bg-white overflow-y-auto flex flex-col md:sticky md:top-0 md:h-screen md:inset-auto md:z-auto md:w-96 md:shrink-0 md:border-l md:border-gray-200">
+        <div ref={detailRef} className="fixed inset-0 z-30 bg-white overflow-y-auto flex flex-col md:static md:inset-auto md:z-auto md:w-96 md:shrink-0 md:border-l md:border-gray-200">
           <div className="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-gray-800">Lead Detail</h2>
             <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
