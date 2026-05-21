@@ -231,7 +231,7 @@ export default function LeadsClient() {
 
       {/* Right detail panel — full-screen overlay on mobile, side panel on md+ */}
       {selected && (
-        <div ref={detailRef} className="fixed inset-0 z-30 bg-white overflow-y-auto flex flex-col md:static md:inset-auto md:z-auto md:w-96 md:shrink-0 md:border-l md:border-gray-200">
+        <div ref={detailRef} className="fixed inset-0 z-30 bg-white overflow-y-auto flex flex-col md:static md:inset-auto md:z-auto md:w-1/2 md:shrink-0 md:border-l md:border-gray-200">
           <div className="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-gray-800">Lead Detail</h2>
             <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
