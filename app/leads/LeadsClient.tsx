@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface Lead {
   id: string;
@@ -66,6 +66,13 @@ export default function LeadsClient() {
   const [notes, setNotes] = useState("");
   const [fetchingContacts, setFetchingContacts] = useState(false);
   const [tenderUrlInput, setTenderUrlInput] = useState("");
+  const detailRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (selected && detailRef.current) {
+      detailRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [selected?.id]);
 
   const fetchLeads = useCallback(async () => {
     const params = new URLSearchParams();
@@ -224,7 +231,7 @@ export default function LeadsClient() {
 
       {/* Right detail panel — full-screen overlay on mobile, side panel on md+ */}
       {selected && (
-        <div className="fixed inset-0 z-30 bg-white overflow-auto flex flex-col md:static md:inset-auto md:z-auto md:w-96 md:shrink-0 md:border-l md:border-gray-200">
+        <div ref={detailRef} className="fixed inset-0 z-30 bg-white overflow-y-auto flex flex-col md:sticky md:top-0 md:h-screen md:inset-auto md:z-auto md:w-96 md:shrink-0 md:border-l md:border-gray-200">
           <div className="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-gray-800">Lead Detail</h2>
             <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
