@@ -187,7 +187,7 @@ export default function LeadsClient() {
                         onClick={() => { setSelected(lead); setNotes(lead.notes ?? ""); setTenderUrlInput(lead.tenderUrl ? "" : (lead.sourceUrl ?? "")); }}
                         className={`w-full text-left rounded-xl border px-5 py-4 transition-all ${
                           selected?.id === lead.id
-                            ? "border-gray-400 bg-white shadow-md"
+                            ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-500/20"
                             : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
                         }`}
                       >
