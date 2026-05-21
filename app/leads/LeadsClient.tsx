@@ -135,15 +135,31 @@ export default function LeadsClient() {
       {/* Left panel */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          {/* Top row */}
-          <div className="px-4 py-4 md:px-8 md:py-5 flex items-center justify-between gap-3">
+          <div className="px-4 py-4 md:px-8 md:py-5 flex items-center justify-between gap-3 flex-wrap">
             <div>
               <h1 className="text-xl font-semibold text-gray-900">Leads</h1>
               <p className="text-sm text-gray-500 mt-0.5">
                 {leads.length} leads found · {tier1.length} Tier 1
               </p>
             </div>
+
+            {/* All filters in one row */}
             <div className="flex flex-wrap items-center gap-2">
+              <FilterPopover
+                label="Country"
+                options={metaOptions.countries}
+                selected={filterCountries}
+                onChange={setFilterCountries}
+                accentColor="blue"
+              />
+              <FilterPopover
+                label="Sector"
+                options={metaOptions.sectors}
+                selected={filterSectors}
+                onChange={setFilterSectors}
+                accentColor="violet"
+              />
+              <div className="w-px h-5 bg-gray-200" />
               <select
                 value={filterTier}
                 onChange={(e) => setFilterTier(e.target.value)}
@@ -167,33 +183,15 @@ export default function LeadsClient() {
                 <option value="tender_response">Tender Response</option>
                 <option value="not_relevant">Not Relevant</option>
               </select>
+              {(filterCountries.length > 0 || filterSectors.length > 0) && (
+                <button
+                  onClick={() => { setFilterCountries([]); setFilterSectors([]); }}
+                  className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors"
+                >
+                  Clear
+                </button>
+              )}
             </div>
-          </div>
-
-          {/* Multi-select filter row */}
-          <div className="px-4 md:px-8 pb-3 flex flex-wrap items-center gap-2">
-            <FilterPopover
-              label="Country"
-              options={metaOptions.countries}
-              selected={filterCountries}
-              onChange={setFilterCountries}
-              accentColor="blue"
-            />
-            <FilterPopover
-              label="Sector"
-              options={metaOptions.sectors}
-              selected={filterSectors}
-              onChange={setFilterSectors}
-              accentColor="violet"
-            />
-            {(filterCountries.length > 0 || filterSectors.length > 0) && (
-              <button
-                onClick={() => { setFilterCountries([]); setFilterSectors([]); }}
-                className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors"
-              >
-                Clear all
-              </button>
-            )}
           </div>
 
           {/* Active filter chips */}
