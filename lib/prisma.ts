@@ -3,8 +3,9 @@ import { PrismaClient } from "../app/generated/prisma/client";
 import path from "path";
 
 function createPrisma() {
-  const dbPath = path.resolve(process.cwd(), "prisma/dev.db");
-  const adapter = new PrismaLibSql({ url: `file:${dbPath}` });
+  const url = process.env.TURSO_DATABASE_URL ?? `file:${path.resolve(process.cwd(), "prisma/dev.db")}`;
+  const authToken = process.env.TURSO_AUTH_TOKEN;
+  const adapter = new PrismaLibSql({ url, authToken });
   return new PrismaClient({ adapter });
 }
 
