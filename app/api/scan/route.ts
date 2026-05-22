@@ -4,6 +4,8 @@ import { extractLeads } from "@/lib/extract";
 export const maxDuration = 120;
 
 export async function POST() {
+  const scanRunId = crypto.randomUUID();
+
   const liveSources = await prisma.source.findMany({
     where: { status: "live" },
     orderBy: { tier: "asc" },
@@ -47,7 +49,7 @@ export async function POST() {
         .replace(/\s+/g, " ")
         .trim();
 
-      const leads = await extractLeads(pageText, source.url);
+      const leads = await extractLeads(pageText, source.url, { sourceId: source.id, scanRunId });
 
       // Deduplicate against existing leads from same source by title
       const existingTitles = new Set(

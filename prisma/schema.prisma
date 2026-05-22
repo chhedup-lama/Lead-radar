@@ -8,17 +8,31 @@ datasource db {
 }
 
 model Source {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
-  url         String   @unique
-  tier        Int      @default(1)
+  url         String     @unique
+  tier        Int        @default(1)
   category    String?
-  status      String   @default("untested")
+  status      String     @default("untested")
   statusNote  String?
   lastTested  DateTime?
   lastScanned DateTime?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime   @default(now())
   leads       Lead[]
+  apiUsage    ApiUsage[]
+}
+
+model ApiUsage {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  costUsd      Float
+  callType     String   @default("extract_leads")
+  sourceId     String?
+  source       Source?  @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  scanRunId    String?
 }
 
 model Lead {

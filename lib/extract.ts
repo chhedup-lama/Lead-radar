@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { logApiUsage } from "@/lib/usage";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -49,7 +50,8 @@ SCORING GUIDE (0-100):
 
 export async function extractLeads(
   pageContent: string,
-  sourceUrl: string
+  sourceUrl: string,
+  opts?: { sourceId?: string; scanRunId?: string }
 ): Promise<ExtractedLead[]> {
   const content = pageContent.slice(0, 80000);
 
@@ -95,6 +97,15 @@ ${content}`,
     ],
   });
 
+  await logApiUsage({
+    model: "claude-sonnet-4-6",
+    inputTokens: message.usage.input_tokens,
+    outputTokens: message.usage.output_tokens,
+    callType: "extract_leads",
+    sourceId: opts?.sourceId,
+    scanRunId: opts?.scanRunId,
+  }).catch(() => {});
+
   const raw = message.content[0].type === "text" ? message.content[0].text : "[]";
   const stopReason = message.stop_reason;
 
@@ -124,7 +135,11 @@ ${content}`,
   }
 }
 
-export async function extractContacts(pageContent: string, pageUrl: string): Promise<string> {
+export async function extractContacts(
+  pageContent: string,
+  pageUrl: string,
+  opts?: { sourceId?: string; scanRunId?: string }
+): Promise<string> {
   const content = pageContent.slice(0, 40000);
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
@@ -144,5 +159,13 @@ ${content}`,
       },
     ],
   });
+  await logApiUsage({
+    model: "claude-sonnet-4-6",
+    inputTokens: message.usage.input_tokens,
+    outputTokens: message.usage.output_tokens,
+    callType: "extract_contacts",
+    sourceId: opts?.sourceId,
+    scanRunId: opts?.scanRunId,
+  }).catch(() => {});
   return message.content[0].type === "text" ? message.content[0].text.trim() : "No contact details found on this page.";
 }
